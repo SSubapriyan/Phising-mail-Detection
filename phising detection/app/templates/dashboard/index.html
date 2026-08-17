@@ -1,0 +1,233 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Dashboard Header -->
+<div class="row mb-5 animate-fade-in">
+    <div class="col-md-12">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <h1 class="fw-bold mb-1">Security Command Center</h1>
+                <p class="text-muted mb-0">Proactive threat monitoring and intelligence dashboard</p>
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{{ url_for('dashboard.export_history') }}" class="btn btn-outline-premium btn-sm">
+                    <i class="fas fa-file-export me-2"></i>Export CSV
+                </a>
+                <a href="{{ url_for('ocr.upload_image') }}" class="btn btn-premium btn-sm">
+                    <i class="fas fa-plus me-2"></i>New Analysis
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quick Stats Cards -->
+<div class="row g-4 mb-5">
+    <div class="col-md-3 animate-fade-in-delay-1">
+        <div class="stat-card stat-primary">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="stat-label mb-1">Total Analyzed</p>
+                    <h3 class="stat-value mb-0">{{ total_scans }}</h3>
+                </div>
+                <div class="stat-icon primary">
+                    <i class="fas fa-search"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 animate-fade-in-delay-1">
+        <div class="stat-card stat-danger">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="stat-label mb-1">Threats Blocked</p>
+                    <h3 class="stat-value mb-0" style="color: var(--danger);">{{ scams_detected }}</h3>
+                </div>
+                <div class="stat-icon danger">
+                    <i class="fas fa-shield-virus"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 animate-fade-in-delay-2">
+        <div class="stat-card stat-success">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="stat-label mb-1">Safe Offers</p>
+                    <h3 class="stat-value mb-0" style="color: var(--success);">{{ safe_detected }}</h3>
+                </div>
+                <div class="stat-icon success">
+                    <i class="fas fa-check-shield"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 animate-fade-in-delay-2">
+        <div class="stat-card stat-warning">
+            <div class="d-flex justify-content-between align-items-start">
+                <div>
+                    <p class="stat-label mb-1">AI Reliability</p>
+                    <h3 class="stat-value mb-0" style="color: var(--warning);">{{ "%.1f"|format(avg_confidence * 100) }}%</h3>
+                </div>
+                <div class="stat-icon warning">
+                    <i class="fas fa-brain"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Section -->
+<div class="row g-4 mb-5">
+    <div class="col-lg-6 offset-lg-3 animate-fade-in-delay-3">
+        <div class="premium-card p-5">
+            <div class="text-center mb-4">
+                <h5 class="fw-bold mb-0">
+                    <i class="fas fa-chart-pie me-2" style="color: var(--accent);"></i>Risk Distribution
+                </h5>
+            </div>
+            <div style="max-height: 280px; position: relative; display: flex; justify-content: center;">
+                <canvas id="riskPieChart"></canvas>
+            </div>
+            <div class="mt-4 d-flex justify-content-center gap-4">
+                <span class="d-flex align-items-center">
+                    <span class="d-inline-block me-2 rounded-circle" style="width: 12px; height: 12px; background: var(--danger);"></span>
+                    <span class="text-muted">Scam</span>
+                </span>
+                <span class="d-flex align-items-center">
+                    <span class="d-inline-block me-2 rounded-circle" style="width: 12px; height: 12px; background: var(--success);"></span>
+                    <span class="text-muted">Safe</span>
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Search & Filter Bar -->
+<div class="row mb-4 animate-fade-in-delay-3">
+    <div class="col-md-12">
+        <div class="premium-card p-4">
+            <form class="row g-3" method="get" action="{{ url_for('dashboard.index') }}">
+                <div class="col-md-6">
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-search"></i>
+                        </span>
+                        <input type="text" name="q" class="form-control" 
+                               placeholder="Search reports by title or content..." value="{{ q }}">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <select name="status" class="form-select">
+                        <option value="all" {% if status == 'all' %}selected{% endif %}>All Threat Levels</option>
+                        <option value="scam" {% if status == 'scam' %}selected{% endif %}>Scams Only</option>
+                        <option value="safe" {% if status == 'safe' %}selected{% endif %}>Safe Only</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-premium w-100">Apply</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Log -->
+<div class="row animate-fade-in-delay-4">
+    <div class="col-md-12">
+        <div class="premium-card">
+            <div class="p-4 border-bottom" style="border-color: var(--border-light);">
+                <h5 class="fw-bold mb-0">Recent Intelligence Log</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th class="ps-4">Timestamp</th>
+                            <th>Target Entity</th>
+                            <th>Status</th>
+                            <th>Risk Grade</th>
+                            <th>Probability</th>
+                            <th class="pe-4">Report</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr>
+                            <td class="ps-4 text-muted small">{{ report.timestamp.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <div class="fw-semibold small">{{ report.title[:40] }}{{ '...' if report.title|length > 40 }}</div>
+                                <div class="text-muted extra-small">{{ report.company_name or 'Verification Pending' }}</div>
+                            </td>
+                            <td>
+                                {% if report.is_scam %}
+                                    <span class="badge-premium badge-danger">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>MALICIOUS
+                                    </span>
+                                {% else %}
+                                    <span class="badge-premium badge-success">
+                                        <i class="fas fa-check-circle me-1"></i>VERIFIED
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="fw-bold grade-{{ report.safety_grade|lower }}">
+                                    {{ report.safety_grade or 'N/A' }}
+                                </span>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-2" style="width: 140px;">
+                                    <div class="progress flex-grow-1">
+                                        <div class="progress-bar progress-bar-{{ 'danger' if report.is_scam else 'success' }}" 
+                                             style="width: {{ (report.confidence_score * 100)|int }}%;"></div>
+                                    </div>
+                                    <small class="text-muted">{{ (report.confidence_score * 100)|int }}%</small>
+                                </div>
+                            </td>
+                            <td class="pe-4">
+                                <a href="{{ url_for('report.download_report', report_id=report.id) }}" class="btn btn-outline-premium btn-sm px-3">
+                                    <i class="fas fa-file-pdf"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="fas fa-folder-open display-4 mb-3 d-block opacity-25"></i>
+                                No matches found for current filters.
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Risk Pie Chart
+const pieCtx = document.getElementById('riskPieChart').getContext('2d');
+new Chart(pieCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Scam', 'Safe'],
+        datasets: [{
+            data: [{{ scams_detected }}, {{ safe_detected }}],
+            backgroundColor: ['#EF4444', '#22C55E'],
+            borderWidth: 0,
+            hoverOffset: 10
+        }]
+    },
+    options: {
+        responsive: true,
+        cutout: '70%',
+        plugins: { 
+            legend: { 
+                display: false 
+            } 
+        }
+    }
+});
+</script>
+{% endblock %}

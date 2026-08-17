@@ -1,0 +1,138 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section py-5">
+    <div class="container py-5">
+        <div class="row align-items-center min-vh-75">
+            <div class="col-lg-6 animate-fade-in">
+                <h1 class="display-4 fw-bold mb-4" style="line-height: 1.2;">
+                    Protect Yourself from
+                    <span class="gradient-text">Job Scams</span>
+                </h1>
+                <p class="lead text-muted mb-5" style="font-size: 1.125rem;">
+                    ScamGuard AI uses advanced machine learning to analyze job offers and detect potential scams before you apply. Stay safe in your job search.
+                </p>
+                <div class="d-flex gap-3 mb-5">
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-premium btn-lg px-5">
+                        <i class="bi bi-shield-check me-2"></i> Get Protected
+                    </a>
+                    <a href="#features" class="btn btn-outline-premium btn-lg px-5">
+                        <i class="bi bi-arrow-right me-2"></i> Learn More
+                    </a>
+                </div>
+                
+                <!-- Stats -->
+                <div class="d-flex gap-4 align-items-center">
+                    <div class="text-center">
+                        <h3 class="fw-bold mb-0" style="color: var(--primary);">99.2%</h3>
+                        <small class="text-muted">Accuracy</small>
+                    </div>
+                    <div class="vr" style="height: 48px;"></div>
+                    <div class="text-center">
+                        <h3 class="fw-bold mb-0" style="color: var(--primary);">2K+</h3>
+                        <small class="text-muted">Offers Scanned</small>
+                    </div>
+                    <div class="vr" style="height: 48px;"></div>
+                    <div class="text-center">
+                        <h3 class="fw-bold mb-0" style="color: var(--primary);">500+</h3>
+                        <small class="text-muted">Scams Prevented</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block animate-fade-in-delay-1">
+                <div class="premium-card p-5 position-relative">
+                    <div class="position-absolute top-0 end-0 p-4 opacity-10">
+                        <i class="bi bi-shield-lock" style="font-size: 12rem; color: var(--accent);"></i>
+                    </div>
+                    <div class="position-relative">
+                        <!-- Sample Detection Cards -->
+                        <div class="mb-4 p-4 rounded-3" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(239, 68, 68, 0.05)); border: 1px solid rgba(239, 68, 68, 0.2);">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; background: rgba(239, 68, 68, 0.1); border-radius: 12px;">
+                                        <i class="bi bi-file-earmark-pdf-fill text-danger fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-semibold mb-0">Offer_Letter_Scan.pdf</h6>
+                                        <small class="text-muted">Detected 2 minutes ago</small>
+                                    </div>
+                                </div>
+                                <span class="badge-premium badge-danger">
+                                    <i class="bi bi-exclamation-triangle me-1"></i> SCAM
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-4 rounded-3" style="background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(34, 197, 94, 0.05)); border: 1px solid rgba(34, 197, 94, 0.2);">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="d-flex align-items-center justify-content-center me-3" style="width: 48px; height: 48px; background: rgba(34, 197, 94, 0.1); border-radius: 12px;">
+                                        <i class="bi bi-image text-success fs-4"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="fw-semibold mb-0">Screenshot_01.png</h6>
+                                        <small class="text-muted">Verified 15 minutes ago</small>
+                                    </div>
+                                </div>
+                                <span class="badge-premium badge-success">
+                                    <i class="bi bi-check-circle me-1"></i> SAFE
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section id="features" class="py-5">
+    <div class="container py-5">
+        <div class="text-center mb-5 animate-fade-in">
+            <h2 class="fw-bold mb-3">Advanced Protection Features</h2>
+            <p class="lead text-muted">Powered by cutting-edge AI and security technology</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4 animate-fade-in-delay-1">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-cpu"></i>
+                    </div>
+                    <h4 class="fw-semibold mb-3">OCR Text Extraction</h4>
+                    <p class="text-muted mb-0">Extract text from images, PDFs, and screenshots with high precision using advanced OCR technology.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-fade-in-delay-2">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                    <h4 class="fw-semibold mb-3">ML Classification</h4>
+                    <p class="text-muted mb-0">Our machine learning model identifies red flags like suspicious payment requests and non-standard hiring practices.</p>
+                </div>
+            </div>
+            <div class="col-md-4 animate-fade-in-delay-3">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="bi bi-file-earmark-text"></i>
+                    </div>
+                    <h4 class="fw-semibold mb-3">PDF Reports</h4>
+                    <p class="text-muted mb-0">Generate professional PDF reports with risk scores, detailed analysis, and security recommendations.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 mb-5" style="background: linear-gradient(135deg, var(--primary), var(--secondary));">
+    <div class="container py-5 text-center">
+        <h2 class="fw-bold mb-3 text-white">Ready to Protect Your Job Search?</h2>
+        <p class="lead mb-5" style="color: #94A3B8;">Join thousands of users who trust ScamGuard AI</p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-premium btn-lg px-5">
+            <i class="bi bi-rocket-takeoff me-2"></i> Start Free Today
+        </a>
+    </div>
+</section>
+{% endblock %}

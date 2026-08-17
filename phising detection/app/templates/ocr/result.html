@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Header -->
+<div class="row mb-5 animate-fade-in">
+    <div class="col-md-12 text-center">
+        <h1 class="fw-bold mb-2">AI Threat Analysis Intelligence</h1>
+        <p class="text-muted">Multi-layered security audit and verification results</p>
+    </div>
+</div>
+
+<!-- Results Grid -->
+<div class="row g-4 justify-content-center">
+    <!-- Risk Gauge & Grade -->
+    <div class="col-lg-4 animate-fade-in-delay-1">
+        <div class="premium-card p-5 h-100">
+            <h5 class="fw-bold mb-4 text-center">Security Rating</h5>
+            
+            <!-- Safety Grade Badge -->
+            <div class="text-center mb-4">
+                <div class="display-1 fw-bold mb-0" id="gradeBadge">?</div>
+                <div class="text-muted small text-uppercase fw-bold">Internship Safety Grade</div>
+            </div>
+
+            <div class="position-relative d-inline-block mx-auto mb-4" style="display: flex; justify-content: center;">
+                <canvas id="gaugeChart" width="220" height="130"></canvas>
+                <div class="position-absolute top-100 start-50 translate-middle mt-2 text-center">
+                    <h2 class="fw-bold mb-0" id="confidenceValue">0%</h2>
+                    <small class="text-muted text-uppercase fw-bold" id="riskLevel">Scanning...</small>
+                </div>
+            </div>
+            
+            <div class="mt-5 pt-4 text-center">
+                <div id="scamAlert" class="alert py-3 border-0 d-none">
+                    <i class="fas fa-shield-virus me-2"></i>
+                    <span id="alertText"></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Diagnostics -->
+    <div class="col-lg-8 animate-fade-in-delay-2">
+        <div class="premium-card p-5 h-100">
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <h5 class="fw-bold mb-0">AI Diagnostic Report</h5>
+                <span class="badge-premium badge-info" id="companyBadge">
+                    Verification Pending
+                </span>
+            </div>
+
+            <!-- Risk Probability Pie -->
+            <div class="row mb-5 align-items-center">
+                <div class="col-md-4 text-center">
+                    <div style="max-width: 160px; margin: auto;">
+                        <canvas id="probChart"></canvas>
+                    </div>
+                    <small class="text-muted d-block mt-2">Threat Probability</small>
+                </div>
+                <div class="col-md-8">
+                    <div class="p-4 rounded-3" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.05), rgba(6, 182, 212, 0.02)); border: 1px solid rgba(6, 182, 212, 0.2);">
+                        <h6 class="fw-semibold mb-2" style="color: var(--accent);">
+                            <i class="fas fa-robot me-2"></i>AI Explanation
+                        </h6>
+                        <p class="text-muted small mb-0" id="aiExplanation">
+                            Initiating deep-scan sequence to analyze linguistics, metadata, and structural patterns...
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mb-4">
+                <label class="text-muted small text-uppercase fw-bold mb-3 d-block">Detected Risk Factors</label>
+                <div id="factorList" class="d-flex flex-wrap gap-2">
+                    <span class="text-muted small italic">Waiting for diagnostics...</span>
+                </div>
+            </div>
+            
+            <div id="recommendations" class="d-none">
+                <h5 class="fw-semibold mb-3">Security Countermeasures</h5>
+                <div class="row g-2" id="recList">
+                    <!-- Dynamic recommendations -->
+                </div>
+            </div>
+            
+            <div class="mt-5 d-flex gap-3 flex-wrap">
+                <button class="btn btn-premium px-5" id="analyzeBtn" onclick="runAnalysis()">
+                    <i class="fas fa-microchip me-2"></i>Execute AI Audit
+                </button>
+                <a href="{{ url_for('report.download_report', report_id=report_id) }}" class="btn btn-outline-premium px-5 d-none" id="downloadBtn">
+                    <i class="fas fa-file-pdf me-2"></i>Generate Security PDF
+                </a>
+                <a href="{{ url_for('dashboard.index') }}" class="btn btn-outline-light px-5 border border-secondary-subtle text-muted">
+                    <i class="fas fa-home me-2"></i>Return to Base
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let gaugeChart, probChart;
+
+function initCharts() {
+    // Gauge Placeholder
+    const gaugeCtx = document.getElementById('gaugeChart').getContext('2d');
+    gaugeChart = new Chart(gaugeCtx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [0, 100],
+                backgroundColor: ['#06B6D4', 'rgba(0, 0, 0, 0.05)'],
+                borderWidth: 0,
+                circumference: 180,
+                rotation: 270,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '80%',
+            plugins: { 
+                legend: { 
+                    display: false 
+                }, 
+                tooltip: { 
+                    enabled: false 
+                } 
+            }
+        }
+    });
+
+    // Probability Pie Placeholder
+    const probCtx = document.getElementById('probChart').getContext('2d');
+    probChart = new Chart(probCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Threat', 'Safe'],
+            datasets: [{
+                data: [0, 100],
+                backgroundColor: ['#EF4444', '#22C55E'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { 
+                legend: { 
+                    display: false 
+                } 
+            }
+        }
+    });
+}
+
+function runAnalysis() {
+    const btn = document.getElementById('analyzeBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Audit in progress...';
+    
+    const text = `{{ text|e }}`;
+    fetch('{{ url_for("ml.predict") }}', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text, report_id: {{ report_id }} }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        updateUI(data);
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Analysis failed. Check system logs.');
+    })
+    .finally(() => {
+        btn.classList.add('d-none');
+        document.getElementById('downloadBtn').classList.remove('d-none');
+    });
+}
+
+function updateUI(data) {
+    const confidence = Math.round(data.confidence * 100);
+    const isScam = data.is_scam;
+    const grade = data.grade;
+    
+    // Update Grade
+    const gradeBadge = document.getElementById('gradeBadge');
+    gradeBadge.textContent = grade;
+    gradeBadge.className = `display-1 fw-bold mb-0 grade-${grade.toLowerCase()}`;
+    
+    // Update Charts
+    gaugeChart.data.datasets[0].data = [confidence, 100 - confidence];
+    gaugeChart.data.datasets[0].backgroundColor = [isScam ? '#EF4444' : '#22C55E', 'rgba(0, 0, 0, 0.05)'];
+    gaugeChart.update();
+    
+    probChart.data.datasets[0].data = [isScam ? confidence : 100 - confidence, isScam ? 100 - confidence : confidence];
+    probChart.update();
+
+    document.getElementById('confidenceValue').textContent = `${confidence}%`;
+    document.getElementById('aiExplanation').textContent = data.explanation;
+    
+    // Company Verification
+    const compBadge = document.getElementById('companyBadge');
+    compBadge.innerHTML = `<i class="fas fa-${data.company_status === 'Verified' ? 'check-circle' : 'exclamation-triangle'} me-2"></i>${data.company}: ${data.company_status}`;
+    compBadge.className = `badge-premium badge-${data.company_status === 'Verified' ? 'success' : 'warning'}`;
+
+    // Factors
+    const factorList = document.getElementById('factorList');
+    if (data.factors && data.factors.length > 0) {
+        factorList.innerHTML = data.factors.map(f => `<span class="badge-premium badge-danger"><i class="fas fa-microscope me-2"></i>${f}</span>`).join('');
+    } else {
+        factorList.innerHTML = `<span class="badge-premium badge-success"><i class="fas fa-shield-check me-2"></i>No risk factors identified</span>`;
+    }
+
+    // Risk Level & Recommendations
+    const riskLevel = document.getElementById('riskLevel');
+    const scamAlert = document.getElementById('scamAlert');
+    const alertText = document.getElementById('alertText');
+    const recList = document.getElementById('recList');
+    document.getElementById('recommendations').classList.remove('d-none');
+
+    if (isScam) {
+        riskLevel.textContent = 'High Threat Level';
+        riskLevel.className = 'text-danger text-uppercase fw-bold';
+        scamAlert.classList.replace('d-none', 'alert-danger');
+        scamAlert.classList.add('bg-danger', 'bg-opacity-10', 'text-danger', 'border', 'border-danger', 'border-opacity-20');
+        alertText.textContent = 'SECURITY ALERT: Critical vulnerabilities found in this offer.';
+        
+        const recs = [
+            { icon: 'user-shield', text: 'DO NOT provide SSN or ID copies' },
+            { icon: 'money-bill-wave', text: 'Refuse any requests for crypto or wire payments' },
+            { icon: 'search-location', text: 'Check the official corporate careers portal' },
+            { icon: 'envelope-open-text', text: 'Verify recruiter identity via LinkedIn' }
+        ];
+        recList.innerHTML = recs.map(r => `
+            <div class="col-md-6">
+                <div class="premium-card p-3" style="border-color: rgba(239, 68, 68, 0.2);">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-${r.icon} me-3 fs-5" style="color: var(--danger);"></i>
+                        <span class="small text-muted">${r.text}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        riskLevel.textContent = 'Secure Profile';
+        riskLevel.className = 'text-success text-uppercase fw-bold';
+        scamAlert.classList.replace('d-none', 'alert-success');
+        scamAlert.classList.add('bg-success', 'bg-opacity-10', 'text-success', 'border', 'border-success', 'border-opacity-20');
+        alertText.textContent = 'SAFE: Analysis indicates a low-risk legitimate internship offer.';
+        
+        const recs = [
+            { icon: 'handshake', text: 'Proceed with standard application protocols' },
+            { icon: 'comments', text: 'Schedule a call via the official company phone' },
+            { icon: 'award', text: 'Research employee reviews on Glassdoor' }
+        ];
+        recList.innerHTML = recs.map(r => `
+            <div class="col-md-6">
+                <div class="premium-card p-3" style="border-color: rgba(34, 197, 94, 0.2);">
+                    <div class="d-flex align-items-center">
+                        <i class="fas fa-${r.icon} me-3 fs-5" style="color: var(--success);"></i>
+                        <span class="small text-muted">${r.text}</span>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initCharts);
+</script>
+{% endblock %}

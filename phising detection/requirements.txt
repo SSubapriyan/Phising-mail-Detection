@@ -1,0 +1,13 @@
+flask
+flask-sqlalchemy
+flask-login
+flask-migrate
+werkzeug
+python-dotenv
+pytesseract
+Pillow
+scikit-learn
+joblib
+pandas
+reportlab
+pdf2image
